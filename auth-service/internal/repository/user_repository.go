@@ -48,3 +48,28 @@ func GetUserByEmail(email string) (models.User, error) {
 
 	return user, err
 }
+
+func GetUserByID(id string) (models.User, error) {
+	query := `
+		SELECT id, username, email, password, role, created_at
+		FROM users
+		WHERE id=$1
+	`
+
+	var user models.User
+	err := config.DB.QueryRow(
+		context.Background(),
+		query,
+		id,
+	).Scan(
+		&user.ID,
+		&user.Username,
+		&user.Email,
+		&user.Password,
+		&user.Role,
+		&user.CreatedAt,
+	)
+
+
+	return user, err
+}

@@ -61,4 +61,10 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{
 		"token": token,
 	})
+
+}
+
+
+func AdminPanel(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("Welcome admin"))
 }
