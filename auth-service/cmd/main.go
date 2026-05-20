@@ -15,6 +15,8 @@ func main() {
 	
 	r := mux.NewRouter()
 	
+
+
 	r.HandleFunc("/register", handler.Register).Methods("POST")
 	r.HandleFunc("/login", handler.Login).Methods("POST")
 	
@@ -98,6 +100,108 @@ func main() {
 	).Methods("PATCH")
 
 
+	// чат для общения артистов и владельцев площадок
+	r.HandleFunc("/ws", handler.ChatHandler)
+
+	// получение сообщений между двумя пользователями
+	r.HandleFunc(
+		"/messages/{user1}/{user2}",
+		handler.GetMessages,
+	).Methods("GET")
+
+	// создание событий для владельцев площадок bearer token
+	r.Handle(
+		"/events",
+		middleware.JWTMiddleware(
+			middleware.RoleMiddleware("venue_admin")(
+				http.HandlerFunc(handler.CreateEvent),
+			),
+		),
+	).Methods("POST")
+
+	// получение всех событий для всех пользователей 
+	r.HandleFunc(
+		"/events",
+		handler.GetAllEvents,
+	).Methods("GET")
+
+	// создание билетов bearer token 
+	r.Handle(
+		"/tickets",
+		middleware.JWTMiddleware(
+			http.HandlerFunc(handler.CreateTicket),
+		),
+	).Methods("POST")
+
+	// получение билетов пользователя bearer token 
+	r.Handle(
+		"/my-tickets",
+		middleware.JWTMiddleware(
+			http.HandlerFunc(handler.GetUserTickets),
+		),
+	).Methods("GET")
+
+
+	// получение события по id для всех пользователей 
+	r.HandleFunc(
+		"/events/{id}",
+		handler.GetEventByID,
+	).Methods("GET")
+
+	// удаление события  Bearer VENUE_ADMIN_TOKEN 
+	r.Handle(
+		"/events/{id}",
+		middleware.JWTMiddleware(
+			middleware.RoleMiddleware("venue_admin")(
+				http.HandlerFunc(handler.DeleteEvent),
+			),
+		),
+	).Methods("DELETE")
+	
+	// обновление события Bearer VENUE_ADMIN_TOKEN 
+	r.Handle(
+		"/events/{id}",
+		middleware.JWTMiddleware(
+			middleware.RoleMiddleware("venue_admin")(
+				http.HandlerFunc(handler.UpdateEvent),
+			),
+		),
+	).Methods("PUT")
+	
+
+	// поиск событий по названию для всех пользователей  http://localhost:8080/events/search?title=techno
+	r.HandleFunc( 
+		"/events/search",
+		handler.SearchEvents,
+	).Methods("GET")
+
+	// получение информации о себе для всех пользователей Bearer TOKEN
+	r.Handle(
+		"/me",
+		middleware.JWTMiddleware(
+			http.HandlerFunc(handler.GetMe),
+		),
+	).Methods("GET")
+
+// админ панель для супер админов для управления всеми пользователями и их ролями
+	r.Handle(
+		"/admin/users",
+		middleware.JWTMiddleware(
+			middleware.RoleMiddleware("super_admin")(
+			http.HandlerFunc(handler.GetAllUsers),
+			),
+		),
+	).Methods("GET")
+
+	// удаление пользователя супер админом Bearer SUPER_ADMIN_TOKEN
+	r.Handle(
+		"/admin/users/{id}",
+		middleware.JWTMiddleware(
+			middleware.RoleMiddleware("super_admin")(
+				http.HandlerFunc(handler.DeleteUser),
+			),
+		),
+	).Methods("DELETE")
 
 	log.Println("Auth service started on :8080")
 

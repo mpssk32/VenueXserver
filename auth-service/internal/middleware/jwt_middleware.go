@@ -32,9 +32,21 @@ func JWTMiddleware(next http.Handler) http.Handler {
 
 		claims := token.Claims.(jwt.MapClaims)
 
-		ctx := context.WithValue(r.Context(), "user_id", claims["user_id"])
-		ctx = context.WithValue(ctx, "role", claims["role"])
+		ctx := context.WithValue(
+			r.Context(),
+			"user_id",
+			claims["user_id"],
+		)
 
-		next.ServeHTTP(w, r.WithContext(ctx))
+		ctx = context.WithValue(
+			ctx,
+			"role",
+			claims["role"],
+		)
+
+		next.ServeHTTP(
+			w,
+			r.WithContext(ctx),
+		)
 	})
 }
