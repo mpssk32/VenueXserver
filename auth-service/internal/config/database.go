@@ -4,21 +4,40 @@ import (
 	"context"
 	"log"
 	"os"
+	"time"
 
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-var DB *pgx.Conn
+var DB *pgxpool.Pool
 
 func ConnectDB() {
-	dbUrl := os.Getenv("DATABASE_URL")
 
-	conn, err := pgx.Connect(context.Background(), dbUrl)
-	if err != nil {
-		log.Fatal("Database connection error:", err)
+	databaseURL := os.Getenv("DATABASE_URL")
+
+	var err error
+
+	for i := 0; i < 10; i++ {
+
+		DB, err = pgxpool.New(
+			context.Background(),
+			databaseURL,
+		)
+
+		if err == nil {
+
+			err = DB.Ping(context.Background())
+
+			if err == nil {
+				log.Println("PostgreSQL connected")
+				return
+			}
+		}
+
+		log.Println("Waiting for PostgreSQL...")
+
+		time.Sleep(3 * time.Second)
 	}
 
-	DB = conn
-
-	log.Println("PostgreSQL connected")
+	log.Fatal("Database connection error:", err)
 }

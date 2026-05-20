@@ -69,6 +69,10 @@ func ApproveApplication(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Write([]byte("Application approved"))
+	
+	err = service.PublishNotification(
+	"Application approved",
+	)
 }
 
 

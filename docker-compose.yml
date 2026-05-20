@@ -22,3 +22,10 @@ services:
       JWT_SECRET: super_secret_key
     depends_on:
       - postgres
+      - rabbitmq
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: concert_rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
