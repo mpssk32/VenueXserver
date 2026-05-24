@@ -1,8 +1,8 @@
 package handler
 
 import (
-	"auth-service/internal/models"
-	"auth-service/internal/repository"
+	"chat-service/internal/models"
+	"chat-service/internal/service"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -25,13 +25,19 @@ var upgrader = websocket.Upgrader{
 }
 
 func ChatHandler(w http.ResponseWriter, r *http.Request) {
+
 	userID := r.URL.Query().Get("user_id")
 
 	if userID == "" {
-		http.Error(w, "user_id required", http.StatusBadRequest)
+
+		http.Error(
+			w,
+			"user_id required",
+			http.StatusBadRequest,
+		)
+
 		return
 	}
-
 
 	conn, err := upgrader.Upgrade(w, r, nil)
 
@@ -74,19 +80,12 @@ func ChatHandler(w http.ResponseWriter, r *http.Request) {
 			Content:    chatMessage.Content,
 		}
 
-		err = repository.SaveMessage(message)
+		err = service.SaveMessage(message)
 
 		if err != nil {
 			log.Println(err)
 			continue
 		}
-
-		log.Printf(
-			"Message from %s to %s: %s\n",
-			chatMessage.SenderID,
-			chatMessage.ReceiverID,
-			chatMessage.Content,
-		)
 
 		receiverConn, ok := clients[chatMessage.ReceiverID]
 
@@ -101,7 +100,10 @@ func ChatHandler(w http.ResponseWriter, r *http.Request) {
 
 				receiverConn.Close()
 
-				delete(clients, chatMessage.ReceiverID)
+				delete(
+					clients,
+					chatMessage.ReceiverID,
+				)
 			}
 		}
 	}

@@ -29,3 +29,19 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
+
+  notification-service:
+    build: ./notification-service
+    container_name: notification-service
+    depends_on:
+      - rabbitmq
+
+  chat-service:
+    build: ./chat-service
+    container_name: chat-service
+    ports:
+    - "8081:8081"
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/concert_platform?sslmode=disable
+    depends_on:
+    - postgres

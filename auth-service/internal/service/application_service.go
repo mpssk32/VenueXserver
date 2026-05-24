@@ -25,3 +25,7 @@ func UpdateApplicationStatus(
 		status,
 	)
 }
+
+func DeleteApplication(applicationID string) error {
+	return repository.DeleteApplication(applicationID)
+}

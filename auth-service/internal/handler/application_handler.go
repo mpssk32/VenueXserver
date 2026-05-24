@@ -10,28 +10,50 @@ import (
 )
 
 func CreateApplication(w http.ResponseWriter, r *http.Request) {
+
 	var app models.Application
 
 	err := json.NewDecoder(r.Body).Decode(&app)
+
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+
+		http.Error(
+			w,
+			err.Error(),
+			http.StatusBadRequest,
+		)
+
 		return
 	}
 
 	if app.VenueID == "" || app.Message == "" {
-		http.Error(w, "All fields are required", http.StatusBadRequest)
+
+		http.Error(
+			w,
+			"All fields are required",
+			http.StatusBadRequest,
+		)
+
 		return
 	}
 
 	app.ArtistID = r.Context().Value("user_id").(string)
 
 	err = service.CreateApplication(app)
+
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+
+		http.Error(
+			w,
+			err.Error(),
+			http.StatusInternalServerError,
+		)
+
 		return
 	}
 
 	w.WriteHeader(http.StatusCreated)
+
 	w.Write([]byte("Application created"))
 }
 
@@ -42,7 +64,13 @@ func GetVenueApplications(w http.ResponseWriter, r *http.Request) {
 	applications, err := service.GetVenueApplications(ownerID)
 
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+
+		http.Error(
+			w,
+			err.Error(),
+			http.StatusInternalServerError,
+		)
+
 		return
 	}
 
@@ -64,17 +92,60 @@ func ApproveApplication(w http.ResponseWriter, r *http.Request) {
 	)
 
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+
+		http.Error(
+			w,
+			err.Error(),
+			http.StatusInternalServerError,
+		)
+
 		return
 	}
 
-	w.Write([]byte("Application approved"))
-	
 	err = service.PublishNotification(
-	"Application approved",
+		"Application approved",
 	)
-}
 
+	if err != nil {
+
+		http.Error(
+			w,
+			err.Error(),
+			http.StatusInternalServerError,
+		)
+
+		return
+	}
+
+	err = service.DeleteApplication(applicationID)
+
+	if err != nil {
+
+		http.Error(
+			w,
+			err.Error(),
+			http.StatusInternalServerError,
+		)
+
+		return
+	}
+	
+	err = service.DeleteApplication(applicationID)
+
+	if err != nil {
+
+		http.Error(
+			w,
+			err.Error(),
+			http.StatusInternalServerError,
+		)
+
+		return
+	}
+
+
+	w.Write([]byte("Application approved"))
+}
 
 func RejectApplication(w http.ResponseWriter, r *http.Request) {
 
@@ -89,7 +160,41 @@ func RejectApplication(w http.ResponseWriter, r *http.Request) {
 	)
 
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+
+		http.Error(
+			w,
+			err.Error(),
+			http.StatusInternalServerError,
+		)
+
+		return
+	}
+
+	err = service.PublishNotification(
+		"Application rejected",
+	)
+
+	if err != nil {
+
+		http.Error(
+			w,
+			err.Error(),
+			http.StatusInternalServerError,
+		)
+
+		return
+	}
+
+	err = service.DeleteApplication(applicationID)
+
+	if err != nil {
+
+		http.Error(
+			w,
+			err.Error(),
+			http.StatusInternalServerError,
+		)
+
 		return
 	}
 

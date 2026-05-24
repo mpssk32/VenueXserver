@@ -1,21 +1,20 @@
 package handler
 
 import (
-	"auth-service/internal/repository"
+	"chat-service/internal/service"
 	"encoding/json"
 	"net/http"
-
-	"github.com/gorilla/mux"
 )
 
 func GetMessages(w http.ResponseWriter, r *http.Request) {
 
-	vars := mux.Vars(r)
+	senderID := r.URL.Query().Get("sender_id")
+	receiverID := r.URL.Query().Get("receiver_id")
 
-	user1 := vars["user1"]
-	user2 := vars["user2"]
-
-	messages, err := repository.GetMessages(user1, user2)
+	messages, err := service.GetMessages(
+		senderID,
+		receiverID,
+	)
 
 	if err != nil {
 
@@ -28,7 +27,10 @@ func GetMessages(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(
+		"Content-Type",
+		"application/json",
+	)
 
 	json.NewEncoder(w).Encode(messages)
 }

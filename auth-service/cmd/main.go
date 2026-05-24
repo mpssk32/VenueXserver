@@ -1,12 +1,13 @@
 package main
 
 import (
-	"log"
-	"net/http"
 	"auth-service/internal/config"
-	"github.com/gorilla/mux"
 	"auth-service/internal/handler"
 	"auth-service/internal/middleware"
+	"log"
+	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 func main() {
@@ -98,16 +99,6 @@ func main() {
 		),
 	),
 	).Methods("PATCH")
-
-
-	// чат для общения артистов и владельцев площадок
-	r.HandleFunc("/ws", handler.ChatHandler)
-
-	// получение сообщений между двумя пользователями
-	r.HandleFunc(
-		"/messages/{user1}/{user2}",
-		handler.GetMessages,
-	).Methods("GET")
 
 	// создание событий для владельцев площадок bearer token
 	r.Handle(
@@ -202,6 +193,7 @@ func main() {
 			),
 		),
 	).Methods("DELETE")
+
 
 	log.Println("Auth service started on :8080")
 

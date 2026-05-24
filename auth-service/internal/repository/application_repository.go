@@ -107,3 +107,20 @@ func UpdateApplicationStatus(
 
 	return err
 }
+
+
+func DeleteApplication(applicationID string) error {
+
+	query := `
+		DELETE FROM applications
+		WHERE id = $1
+	`
+
+	_, err := config.DB.Exec(
+		context.Background(),
+		query,
+		applicationID,
+	)
+
+	return err
+}

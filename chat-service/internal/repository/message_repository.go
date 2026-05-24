@@ -1,11 +1,10 @@
 package repository
 
 import (
-	"auth-service/internal/config"
-	"auth-service/internal/models"
+	"chat-service/internal/config"
+	"chat-service/internal/models"
 	"context"
 )
-
 
 func SaveMessage(message models.Message) error {
 
@@ -29,28 +28,30 @@ func SaveMessage(message models.Message) error {
 	return err
 }
 
-func GetMessages(user1, user2 string) ([]models.Message, error) {
+func GetMessages(
+	senderID string,
+	receiverID string,
+) ([]models.Message, error) {
 
 	query := `
 		SELECT
 			id,
 			sender_id,
 			receiver_id,
-			content,
-			created_at
+			content
 		FROM messages
 		WHERE
-			(sender_id = $1 AND receiver_id = $2)
-			OR
-			(sender_id = $2 AND receiver_id = $1)
-		ORDER BY created_at ASC
+		(sender_id = $1 AND receiver_id = $2)
+		OR
+		(sender_id = $2 AND receiver_id = $1)
+		ORDER BY id ASC
 	`
 
 	rows, err := config.DB.Query(
 		context.Background(),
 		query,
-		user1,
-		user2,
+		senderID,
+		receiverID,
 	)
 
 	if err != nil {
@@ -70,7 +71,6 @@ func GetMessages(user1, user2 string) ([]models.Message, error) {
 			&message.SenderID,
 			&message.ReceiverID,
 			&message.Content,
-			&message.CreatedAt,
 		)
 
 		if err != nil {
@@ -82,5 +82,3 @@ func GetMessages(user1, user2 string) ([]models.Message, error) {
 
 	return messages, nil
 }
-
-
