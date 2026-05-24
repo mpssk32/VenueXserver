@@ -6,15 +6,21 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"os"
 
+
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/gorilla/websocket"
 )
 
-type ChatMessage struct {
-	SenderID   string `json:"sender_id"`
-	ReceiverID string `json:"receiver_id"`
-	Content    string `json:"content"`
-}
+
+// подключение в постмане через jwt токен, который выдаёт auth-service при логине, и отправка в теле сообщения вида:
+		// {
+		// 	"sender_id": "id_пользователя_из_токена",
+		// 	"receiver_id": "id_получателя",
+		// 	"content": "текст сообщения"
+		// }
+
 
 var clients = make(map[string]*websocket.Conn)
 
@@ -26,18 +32,41 @@ var upgrader = websocket.Upgrader{
 
 func ChatHandler(w http.ResponseWriter, r *http.Request) {
 
-	userID := r.URL.Query().Get("user_id")
+	tokenString := r.URL.Query().Get("token")
 
-	if userID == "" {
+	if tokenString == "" {
 
 		http.Error(
 			w,
-			"user_id required",
+			"token required",
 			http.StatusBadRequest,
 		)
 
 		return
 	}
+
+	token, err := jwt.Parse(
+		tokenString,
+		func(token *jwt.Token) (interface{}, error) {
+
+			return []byte(os.Getenv("JWT_SECRET")), nil
+		},
+	)
+
+	if err != nil || !token.Valid {
+
+		http.Error(
+			w,
+			"Invalid token",
+			http.StatusUnauthorized,
+		)
+
+		return
+	}
+
+	claims := token.Claims.(jwt.MapClaims)
+
+	userID := claims["user_id"].(string)
 
 	conn, err := upgrader.Upgrade(w, r, nil)
 
@@ -50,7 +79,7 @@ func ChatHandler(w http.ResponseWriter, r *http.Request) {
 
 	clients[userID] = conn
 
-	log.Println("Client connected")
+	log.Println("Client connected:", userID)
 
 	for {
 
@@ -60,18 +89,30 @@ func ChatHandler(w http.ResponseWriter, r *http.Request) {
 
 			delete(clients, userID)
 
-			log.Println("Client disconnected")
+			log.Println("Client disconnected:", userID)
 
 			break
 		}
 
-		var chatMessage ChatMessage
+		var chatMessage models.Message
 
 		err = json.Unmarshal(payload, &chatMessage)
 
 		if err != nil {
 			log.Println(err)
 			continue
+		}
+
+		
+		if chatMessage.SenderID != userID {
+
+			http.Error(
+				w,
+				"sender_id mismatch",
+				http.StatusUnauthorized,
+			)
+
+			return
 		}
 
 		message := models.Message{

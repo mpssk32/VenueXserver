@@ -1,3 +1,9 @@
+// @title VenueX API
+// @version 1.0
+// @description Concert platform microservices API
+// @host localhost:8000
+// @BasePath /
+
 package main
 
 import (
@@ -7,7 +13,10 @@ import (
 	"log"
 	"net/http"
 
+	_ "auth-service/docs"
+
 	"github.com/gorilla/mux"
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 func main() {
@@ -16,7 +25,9 @@ func main() {
 	
 	r := mux.NewRouter()
 	
-
+	r.PathPrefix("/swagger/").Handler(
+		httpSwagger.WrapHandler,
+	)
 
 	r.HandleFunc("/register", handler.Register).Methods("POST")
 	r.HandleFunc("/login", handler.Login).Methods("POST")

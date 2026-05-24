@@ -45,3 +45,24 @@ services:
       DATABASE_URL: postgres://postgres:postgres@postgres:5432/concert_platform?sslmode=disable
     depends_on:
     - postgres
+
+  gateway-service:
+    build: ./gateway-service
+    container_name: gateway-service
+    ports:
+      - "8000:8000"
+    depends_on:
+      - auth-service
+      - chat-service  
+  
+  concert-service:
+    build: ./concert-service
+    container_name: concert-service
+    ports:
+      - "8082:8082"
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/concert_platform?sslmode=disable
+      JWT_SECRET: supersecret
+    depends_on:
+      - postgres
+    
