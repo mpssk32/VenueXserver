@@ -17,7 +17,7 @@ func main() {
 
 	routes.RegisterRoutes(r)
 
-	log.Println("Event service started on :8082")
+	log.Println("concert service started on :8082")
 
 	log.Fatal(
 		http.ListenAndServe(":8082", r),

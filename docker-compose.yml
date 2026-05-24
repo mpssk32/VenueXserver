@@ -15,8 +15,8 @@ services:
   auth-service:
     build:
       context: ./auth-service
-    ports:
-      - "8080:8080"
+    expose:
+      - "8080"
     environment:
       DATABASE_URL: postgres://postgres:postgres@postgres:5432/concert_platform
       JWT_SECRET: super_secret_key
@@ -39,8 +39,8 @@ services:
   chat-service:
     build: ./chat-service
     container_name: chat-service
-    ports:
-    - "8081:8081"
+    expose:
+      - "8081"
     environment:
       DATABASE_URL: postgres://postgres:postgres@postgres:5432/concert_platform?sslmode=disable
     depends_on:
@@ -58,8 +58,8 @@ services:
   concert-service:
     build: ./concert-service
     container_name: concert-service
-    ports:
-      - "8082:8082"
+    expose:
+      - "8082"
     environment:
       DATABASE_URL: postgres://postgres:postgres@postgres:5432/concert_platform?sslmode=disable
       JWT_SECRET: supersecret
