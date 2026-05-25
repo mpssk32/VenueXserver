@@ -9,6 +9,21 @@ import (
 	"github.com/gorilla/mux"
 )
 
+
+// CreateEvent godoc
+//
+//	@Summary		Create event
+//	@Description	Create new concert event
+//	@Tags			events
+//	@Security		BearerAuth
+//	@Accept			json
+//	@Produce		plain
+//	@Param			request	body		models.Event	true	"Event body"
+//	@Success		201		{string}	string	"Event created"
+//	@Failure		400		{string}	string
+//	@Failure		401		{string}	string
+//	@Failure		500		{string}	string
+//	@Router			/events [post]
 func CreateEvent(w http.ResponseWriter, r *http.Request) {
 
 	var event models.Event
@@ -57,9 +72,17 @@ func CreateEvent(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Event created"))
 }
 
+
+// GetAllEvents godoc
+//
+//	@Summary		Get all events
+//	@Description	Get all concert events
+//	@Tags			events
+//	@Produce		json
+//	@Success		200	{array}		models.Event
+//	@Failure		500	{string}	string
+//	@Router			/events [get]
 func GetAllEvents(w http.ResponseWriter, r *http.Request) {
-
-
 
 	events, err := service.GetAllEvents()
 
@@ -79,6 +102,17 @@ func GetAllEvents(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(events)
 }
 
+
+// GetEventByID godoc
+//
+//	@Summary		Get event by ID
+//	@Description	Get single event
+//	@Tags			events
+//	@Produce		json
+//	@Param			id	path		int	true	"Event ID"
+//	@Success		200	{object}	models.Event
+//	@Failure		404	{string}	string
+//	@Router			/events/{id} [get]
 func GetEventByID(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
@@ -103,6 +137,21 @@ func GetEventByID(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(event)
 }
 
+
+// DeleteEvent godoc
+//
+//	@Summary		Delete event
+//	@Description	Delete event by ID
+//	@Tags			events
+//	@Security		BearerAuth
+//	@Produce		plain
+//	@Param			id	path		int	true	"Event ID"
+//	@Success		200	{string}	string	"Event deleted"
+//	@Failure		401	{string}	string
+//	@Failure		403	{string}	string
+//	@Failure		404	{string}	string
+//	@Failure		500	{string}	string
+//	@Router			/events/{id} [delete]
 func DeleteEvent(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
@@ -151,6 +200,24 @@ func DeleteEvent(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Event deleted"))
 }
 
+
+// UpdateEvent godoc
+//
+//	@Summary		Update event
+//	@Description	Update event by ID
+//	@Tags			events
+//	@Security		BearerAuth
+//	@Accept			json
+//	@Produce		plain
+//	@Param			id		path		int				true	"Event ID"
+//	@Param			request	body		models.Event	true	"Updated event"
+//	@Success		200		{string}	string	"Event updated"
+//	@Failure		400		{string}	string
+//	@Failure		401		{string}	string
+//	@Failure		403		{string}	string
+//	@Failure		404		{string}	string
+//	@Failure		500		{string}	string
+//	@Router			/events/{id} [put]
 func UpdateEvent(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
@@ -214,6 +281,18 @@ func UpdateEvent(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Event updated"))
 }
 
+
+// SearchEvents godoc
+//
+//	@Summary		Search events
+//	@Description	Search events by title
+//	@Tags			events
+//	@Produce		json
+//	@Param			title	query		string	true	"Event title"
+//	@Success		200		{array}	models.Event
+//	@Failure		400		{string}	string
+//	@Failure		500		{string}	string
+//	@Router			/events/search [get]
 func SearchEvents(w http.ResponseWriter, r *http.Request) {
 
 	title := r.URL.Query().Get("title")

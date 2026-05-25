@@ -7,6 +7,20 @@ import (
 	"net/http"
 )
 
+// CreateVenue godoc
+//
+//	@Summary		Create venue
+//	@Description	Create new venue
+//	@Tags			venues
+//	@Security		BearerAuth
+//	@Accept			json
+//	@Produce		plain
+//	@Param			request	body		models.Venue	true	"Venue body"
+//	@Success		201		{string}	string	"Venue created"
+//	@Failure		400		{string}	string
+//	@Failure		401		{string}	string
+//	@Failure		500		{string}	string
+//	@Router			/venues [post]
 func CreateVenue(w http.ResponseWriter, r *http.Request) {
 	var venue models.Venue
 

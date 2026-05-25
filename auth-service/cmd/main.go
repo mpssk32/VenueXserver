@@ -1,8 +1,11 @@
-// @title VenueX API
-// @version 1.0
-// @description Concert platform microservices API
-// @host localhost:8000
-// @BasePath /
+//	@title			VenueX Auth API
+//	@version		1.0
+//	@description	Authentication Service
+//	@host			localhost:8080
+//	@BasePath		/
+//	@securityDefinitions.apikey	BearerAuth
+//	@in							header
+//	@name						Authorization
 
 package main
 

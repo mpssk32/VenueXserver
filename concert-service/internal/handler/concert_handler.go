@@ -6,7 +6,20 @@ import (
 	"encoding/json"
 	"net/http"
 )
-
+// CreateConcert godoc
+//
+//	@Summary		Create concert
+//	@Description	Create new concert
+//	@Tags			concerts
+//	@Security		BearerAuth
+//	@Accept			json
+//	@Produce		plain
+//	@Param			request	body		models.Concert	true	"Concert body"
+//	@Success		201		{string}	string	"Concert created"
+//	@Failure		400		{string}	string
+//	@Failure		401		{string}	string
+//	@Failure		500		{string}	string
+//	@Router			/concerts [post]
 func CreateConcert(w http.ResponseWriter, r *http.Request) {
 	var concert models.Concert
 
@@ -38,6 +51,15 @@ func CreateConcert(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Concert created"))
 }
 
+// GetConcerts godoc
+//
+//	@Summary		Get concerts
+//	@Description	Get all concerts
+//	@Tags			concerts
+//	@Produce		json
+//	@Success		200	{array}		models.Concert
+//	@Failure		500	{string}	string
+//	@Router			/concerts [get]
 func GetConcerts(w http.ResponseWriter, r *http.Request) {
 	concerts, err := service.GetConcerts()
 	if err != nil {

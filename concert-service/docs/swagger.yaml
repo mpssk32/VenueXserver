@@ -1,0 +1,560 @@
+basePath: /
+definitions:
+  models.Application:
+    properties:
+      artist_id:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: string
+      message:
+        type: string
+      status:
+        type: string
+      venue_id:
+        type: string
+    type: object
+  models.Concert:
+    properties:
+      concert_date:
+        type: string
+      created_at:
+        type: string
+      created_by:
+        type: string
+      description:
+        type: string
+      genre:
+        type: string
+      id:
+        type: string
+      ticket_price:
+        type: integer
+      title:
+        type: string
+      venue_id:
+        type: string
+    type: object
+  models.Event:
+    properties:
+      artist_id:
+        type: string
+      created_at:
+        type: string
+      description:
+        type: string
+      event_date:
+        type: string
+      id:
+        type: string
+      title:
+        type: string
+      venue_id:
+        type: string
+    type: object
+  models.Ticket:
+    properties:
+      created_at:
+        type: string
+      event_id:
+        type: string
+      id:
+        type: string
+      user_id:
+        type: string
+    type: object
+  models.Venue:
+    properties:
+      capacity:
+        type: integer
+      city:
+        type: string
+      created_at:
+        type: string
+      description:
+        type: string
+      equipment:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      owner_id:
+        type: string
+    type: object
+host: localhost:8082
+info:
+  contact: {}
+  description: Concert Service
+  title: VenueX Concert API
+  version: "1.0"
+paths:
+  /applications:
+    get:
+      description: Get applications for venue owner
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Application'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Get venue applications
+      tags:
+      - applications
+    post:
+      consumes:
+      - application/json
+      description: Artist sends application to venue
+      parameters:
+      - description: Application body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.Application'
+      produces:
+      - text/plain
+      responses:
+        "201":
+          description: Application created
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Create application
+      tags:
+      - applications
+  /applications/{id}/approve:
+    put:
+      description: Approve artist application
+      parameters:
+      - description: Application ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: Application approved
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Approve application
+      tags:
+      - applications
+  /applications/{id}/reject:
+    put:
+      description: Reject artist application
+      parameters:
+      - description: Application ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: Application rejected
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Reject application
+      tags:
+      - applications
+  /concerts:
+    get:
+      description: Get all concerts
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Concert'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Get concerts
+      tags:
+      - concerts
+    post:
+      consumes:
+      - application/json
+      description: Create new concert
+      parameters:
+      - description: Concert body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.Concert'
+      produces:
+      - text/plain
+      responses:
+        "201":
+          description: Concert created
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Create concert
+      tags:
+      - concerts
+  /events:
+    get:
+      description: Get all concert events
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Event'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Get all events
+      tags:
+      - events
+    post:
+      consumes:
+      - application/json
+      description: Create new concert event
+      parameters:
+      - description: Event body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.Event'
+      produces:
+      - text/plain
+      responses:
+        "201":
+          description: Event created
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Create event
+      tags:
+      - events
+  /events/{id}:
+    delete:
+      description: Delete event by ID
+      parameters:
+      - description: Event ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: Event deleted
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "403":
+          description: Forbidden
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Delete event
+      tags:
+      - events
+    get:
+      description: Get single event
+      parameters:
+      - description: Event ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Event'
+        "404":
+          description: Not Found
+          schema:
+            type: string
+      summary: Get event by ID
+      tags:
+      - events
+    put:
+      consumes:
+      - application/json
+      description: Update event by ID
+      parameters:
+      - description: Event ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated event
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.Event'
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: Event updated
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "403":
+          description: Forbidden
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Update event
+      tags:
+      - events
+  /events/search:
+    get:
+      description: Search events by title
+      parameters:
+      - description: Event title
+        in: query
+        name: title
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Event'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Search events
+      tags:
+      - events
+  /tickets:
+    get:
+      description: Get all booked tickets
+      parameters:
+      - description: User ID
+        in: query
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Ticket'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Get user tickets
+      tags:
+      - tickets
+    post:
+      consumes:
+      - application/json
+      description: Book concert ticket
+      parameters:
+      - description: Ticket body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.Ticket'
+      produces:
+      - text/plain
+      responses:
+        "201":
+          description: Ticket booked
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Book ticket
+      tags:
+      - tickets
+  /venues:
+    post:
+      consumes:
+      - application/json
+      description: Create new venue
+      parameters:
+      - description: Venue body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.Venue'
+      produces:
+      - text/plain
+      responses:
+        "201":
+          description: Venue created
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Create venue
+      tags:
+      - venues
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

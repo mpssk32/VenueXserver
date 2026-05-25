@@ -8,7 +8,18 @@ import (
 
 	"github.com/gorilla/mux"
 )
-
+// GetAllUsers godoc
+//
+//	@Summary		Get all users
+//	@Description	Only for super admins
+//	@Tags			admin
+//	@Security		BearerAuth
+//	@Produce		json
+//	@Success		200	{array}		models.UserResponse
+//	@Failure		401	{string}	string
+//	@Failure		403	{string}	string
+//	@Failure		500	{string}	string
+//	@Router			/admin/users [get]
 func GetAllUsers(w http.ResponseWriter, r *http.Request) {
 
 	users, err := service.GetAllUsers()
@@ -28,7 +39,19 @@ func GetAllUsers(w http.ResponseWriter, r *http.Request) {
 
 	json.NewEncoder(w).Encode(users)
 }
-
+// DeleteUser godoc
+//
+//	@Summary		Delete user
+//	@Description	Delete user by ID
+//	@Tags			admin
+//	@Security		BearerAuth
+//	@Produce		plain
+//	@Param			id	path		int	true	"User ID"
+//	@Success		200	{string}	string	"User deleted"
+//	@Failure		401	{string}	string
+//	@Failure		403	{string}	string
+//	@Failure		500	{string}	string
+//	@Router			/admin/users/{id} [delete]
 func DeleteUser(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)

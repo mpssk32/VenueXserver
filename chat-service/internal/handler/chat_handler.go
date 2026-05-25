@@ -30,6 +30,18 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
+
+// ChatHandler godoc
+//
+//	@Summary		WebSocket chat
+//	@Description	Real-time websocket chat connection
+//	@Tags			chat
+//	@Produce		json
+//	@Param			token	query		string	true	"JWT token"
+//	@Success		101		{string}	string	"Switching Protocols"
+//	@Failure		400		{string}	string
+//	@Failure		401		{string}	string
+//	@Router			/ws [get]
 func ChatHandler(w http.ResponseWriter, r *http.Request) {
 
 	tokenString := r.URL.Query().Get("token")

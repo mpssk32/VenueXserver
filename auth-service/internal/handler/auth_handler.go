@@ -7,6 +7,18 @@ import (
 	"net/http"
 )
 
+// Register godoc
+//
+//	@Summary		Register new user
+//	@Description	Create new account
+//	@Tags			auth
+//	@Accept			json
+//	@Produce		json
+//	@Param			request	body		models.RegisterRequest	true	"Register body"
+//	@Success		201		{string}	string	"User created"
+//	@Failure		400		{string}	string
+//	@Failure		500		{string}	string
+//	@Router			/register [post]
 func Register(w http.ResponseWriter, r *http.Request) {
 	var req models.RegisterRequest
 
@@ -35,7 +47,18 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("User created"))
 }
 
-
+// Login godoc
+//
+//	@Summary		Login user
+//	@Description	Login with email and password
+//	@Tags			auth
+//	@Accept			json
+//	@Produce		json
+//	@Param			request	body		models.LoginRequest	true	"Login body"
+//	@Success		200		{object}	models.AuthResponse
+//	@Failure		400		{string}	string
+//	@Failure		401		{string}	string
+//	@Router			/login [post]
 func Login(w http.ResponseWriter, r *http.Request) {
 	var req models.LoginRequest
 
@@ -64,7 +87,17 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 }
 
-
+// AdminPanel godoc
+//
+//	@Summary		Admin panel
+//	@Description	Access admin panel
+//	@Tags			admin
+//	@Security		BearerAuth
+//	@Produce		plain
+//	@Success		200	{string}	string	"Welcome admin"
+//	@Failure		401	{string}	string
+//	@Failure		403	{string}	string
+//	@Router			/admin [get]
 func AdminPanel(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Welcome admin"))
 }

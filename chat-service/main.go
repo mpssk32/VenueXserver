@@ -1,3 +1,11 @@
+//	@title			VenueX Chat API
+//	@version		1.0
+//	@description	Chat Service
+//	@host			localhost:8081
+//	@BasePath		/
+//	@securityDefinitions.apikey	BearerAuth
+//	@in							header
+//	@name						Authorization
 package main
 
 import (
@@ -7,6 +15,8 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	httpSwagger "github.com/swaggo/http-swagger"
+	_ "chat-service/docs"
 )
 
 func main() {
@@ -14,6 +24,11 @@ func main() {
 	config.ConnectDB()
 
 	r := mux.NewRouter()
+
+	r.PathPrefix("/swagger/").Handler(
+		httpSwagger.WrapHandler,
+	)
+
 
 	// websocket chat
 	r.HandleFunc(

@@ -9,6 +9,20 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// CreateApplication godoc
+//
+//	@Summary		Create application
+//	@Description	Artist sends application to venue
+//	@Tags			applications
+//	@Security		BearerAuth
+//	@Accept			json
+//	@Produce		plain
+//	@Param			request	body		models.Application	true	"Application body"
+//	@Success		201		{string}	string	"Application created"
+//	@Failure		400		{string}	string
+//	@Failure		401		{string}	string
+//	@Failure		500		{string}	string
+//	@Router			/applications [post]
 func CreateApplication(w http.ResponseWriter, r *http.Request) {
 
 	var app models.Application
@@ -57,6 +71,18 @@ func CreateApplication(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Application created"))
 }
 
+
+// GetVenueApplications godoc
+//
+//	@Summary		Get venue applications
+//	@Description	Get applications for venue owner
+//	@Tags			applications
+//	@Security		BearerAuth
+//	@Produce		json
+//	@Success		200	{array}		models.Application
+//	@Failure		401	{string}	string
+//	@Failure		500	{string}	string
+//	@Router			/applications [get]
 func GetVenueApplications(w http.ResponseWriter, r *http.Request) {
 
 	ownerID := r.Context().Value("user_id").(string)
@@ -79,6 +105,19 @@ func GetVenueApplications(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(applications)
 }
 
+
+// ApproveApplication godoc
+//
+//	@Summary		Approve application
+//	@Description	Approve artist application
+//	@Tags			applications
+//	@Security		BearerAuth
+//	@Produce		plain
+//	@Param			id	path		int	true	"Application ID"
+//	@Success		200	{string}	string	"Application approved"
+//	@Failure		401	{string}	string
+//	@Failure		500	{string}	string
+//	@Router			/applications/{id}/approve [put]
 func ApproveApplication(w http.ResponseWriter, r *http.Request) {
 
 	applicationID := mux.Vars(r)["id"]
@@ -147,6 +186,19 @@ func ApproveApplication(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Application approved"))
 }
 
+
+// RejectApplication godoc
+//
+//	@Summary		Reject application
+//	@Description	Reject artist application
+//	@Tags			applications
+//	@Security		BearerAuth
+//	@Produce		plain
+//	@Param			id	path		int	true	"Application ID"
+//	@Success		200	{string}	string	"Application rejected"
+//	@Failure		401	{string}	string
+//	@Failure		500	{string}	string
+//	@Router			/applications/{id}/reject [put]
 func RejectApplication(w http.ResponseWriter, r *http.Request) {
 
 	applicationID := mux.Vars(r)["id"]
