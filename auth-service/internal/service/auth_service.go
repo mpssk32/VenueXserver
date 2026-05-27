@@ -4,11 +4,40 @@ import (
 	"auth-service/internal/models"
 	"auth-service/internal/repository"
 	"errors"
+	sharedjwt "venuex/shared/jwt"
 
 	"golang.org/x/crypto/bcrypt"
 )
 
-func Register(req models.RegisterRequest) error {
+type UserRepository interface {
+	CreateUser(user models.User) error
+	GetUserByEmail(email string) (models.User, error)
+	GetUserByID(id string) (models.User, error)
+	GetAllUsers() ([]models.User, error)
+	DeleteUser(userID string) error
+	CreateAuditLog(log models.AuditLog) error
+}
+
+type authService struct {
+	repo UserRepository
+}
+
+func NewAuthService(
+	repo UserRepository,
+) *authService {
+
+	return &authService{
+		repo: repo,
+	}
+}
+
+var AuthService = NewAuthService(
+	repositoryWrapper{},
+)
+
+func (s *authService) Register(
+	req models.RegisterRequest,
+) error {
 
 	allowedRoles := map[string]bool{
 		"user":   true,
@@ -20,7 +49,7 @@ func Register(req models.RegisterRequest) error {
 		return errors.New("invalid role")
 	}
 
-	existingUser, err := repository.GetUserByEmail(req.Email)
+	existingUser, err := s.repo.GetUserByEmail(req.Email)
 
 	if err == nil && existingUser.ID != "" {
 		return errors.New("email already exists")
@@ -42,7 +71,7 @@ func Register(req models.RegisterRequest) error {
 		Role:     req.Role,
 	}
 
-	err = repository.CreateUser(user)
+	err = s.repo.CreateUser(user)
 
 	if err != nil {
 		return err
@@ -59,8 +88,11 @@ func Register(req models.RegisterRequest) error {
 	return nil
 }
 
-func Login(req models.LoginRequest) (string, error) {
-	user, err := repository.GetUserByEmail(req.Email)
+	func (s *authService) Login(
+		req models.LoginRequest,
+		) (string, error) {
+
+	user, err := s.repo.GetUserByEmail(req.Email)
 	if err != nil {
 		return "", err
 	}
@@ -74,10 +106,55 @@ func Login(req models.LoginRequest) (string, error) {
 		return "", err
 	}
 
-	token, err := GenerateJWT(user.ID, user.Role)
+	token, err := sharedjwt.GenerateJWT(user.ID, user.Role)
 	if err != nil {
 		return "", err
 	}
 
 	return token, nil
+}
+
+type repositoryWrapper struct{}
+
+func (repositoryWrapper) CreateUser(
+	user models.User,
+) error {
+
+	return repository.CreateUser(user)
+}
+
+func (repositoryWrapper) GetUserByEmail(
+	email string,
+) (models.User, error) {
+
+	return repository.GetUserByEmail(email)
+}
+
+func (repositoryWrapper) GetUserByID(
+	id string,
+) (models.User, error) {
+
+	return repository.GetUserByID(id)
+}
+
+func (repositoryWrapper) GetAllUsers() (
+	[]models.User,
+	error,
+) {
+
+	return repository.GetAllUsers()
+}
+
+func (repositoryWrapper) DeleteUser(
+	userID string,
+) error {
+
+	return repository.DeleteUser(userID)
+}
+
+func (repositoryWrapper) CreateAuditLog(
+	log models.AuditLog,
+) error {
+
+	return repository.CreateAuditLog(log)
 }

@@ -4,23 +4,22 @@ import (
 	"chat-service/internal/models"
 	"chat-service/internal/service"
 	"encoding/json"
-	"log"
 	"net/http"
-	"os"
 
+	sharedjwt "venuex/shared/jwt"
+	"venuex/shared/logger"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/gorilla/websocket"
 )
 
-
 // подключение в постмане через jwt токен, который выдаёт auth-service при логине, и отправка в теле сообщения вида:
-		// {
-		// 	"sender_id": "id_пользователя_из_токена",
-		// 	"receiver_id": "id_получателя",
-		// 	"content": "текст сообщения"
-		// }
-
+//
+//	{
+//		"sender_id": "id_пользователя_из_токена",
+//		"receiver_id": "id_получателя",
+//		"content": "текст сообщения"
+//	}
 
 var clients = make(map[string]*websocket.Conn)
 
@@ -29,7 +28,6 @@ var upgrader = websocket.Upgrader{
 		return true
 	},
 }
-
 
 // ChatHandler godoc
 //
@@ -48,6 +46,10 @@ func ChatHandler(w http.ResponseWriter, r *http.Request) {
 
 	if tokenString == "" {
 
+		logger.Log.Warn(
+			"websocket connection without token",
+		)
+
 		http.Error(
 			w,
 			"token required",
@@ -57,15 +59,17 @@ func ChatHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token, err := jwt.Parse(
+	token, err := sharedjwt.ValidateJWT(
 		tokenString,
-		func(token *jwt.Token) (interface{}, error) {
-
-			return []byte(os.Getenv("JWT_SECRET")), nil
-		},
 	)
 
 	if err != nil || !token.Valid {
+
+		logger.Log.Warnw(
+			"invalid jwt token",
+			"error",
+			err,
+		)
 
 		http.Error(
 			w,
@@ -80,10 +84,20 @@ func ChatHandler(w http.ResponseWriter, r *http.Request) {
 
 	userID := claims["user_id"].(string)
 
-	conn, err := upgrader.Upgrade(w, r, nil)
+	conn, err := upgrader.Upgrade(
+		w,
+		r,
+		nil,
+	)
 
 	if err != nil {
-		log.Println(err)
+
+		logger.Log.Errorw(
+			"websocket upgrade failed",
+			"error",
+			err,
+		)
+
 		return
 	}
 
@@ -91,7 +105,11 @@ func ChatHandler(w http.ResponseWriter, r *http.Request) {
 
 	clients[userID] = conn
 
-	log.Println("Client connected:", userID)
+	logger.Log.Infow(
+		"client connected",
+		"user_id",
+		userID,
+	)
 
 	for {
 
@@ -99,24 +117,47 @@ func ChatHandler(w http.ResponseWriter, r *http.Request) {
 
 		if err != nil {
 
-			delete(clients, userID)
+			delete(
+				clients,
+				userID,
+			)
 
-			log.Println("Client disconnected:", userID)
+			logger.Log.Infow(
+				"client disconnected",
+				"user_id",
+				userID,
+			)
 
 			break
 		}
 
 		var chatMessage models.Message
 
-		err = json.Unmarshal(payload, &chatMessage)
+		err = json.Unmarshal(
+			payload,
+			&chatMessage,
+		)
 
 		if err != nil {
-			log.Println(err)
+
+			logger.Log.Warnw(
+				"invalid websocket payload",
+				"error",
+				err,
+			)
+
 			continue
 		}
 
-		
 		if chatMessage.SenderID != userID {
+
+			logger.Log.Warnw(
+				"sender_id mismatch",
+				"user_id",
+				userID,
+				"sender_id",
+				chatMessage.SenderID,
+			)
 
 			http.Error(
 				w,
@@ -133,14 +174,23 @@ func ChatHandler(w http.ResponseWriter, r *http.Request) {
 			Content:    chatMessage.Content,
 		}
 
-		err = service.SaveMessage(message)
+		err = service.MessageService.SaveMessage(
+			message,
+		)
 
 		if err != nil {
-			log.Println(err)
+
+			logger.Log.Errorw(
+				"failed to save message",
+				"error",
+				err,
+			)
+
 			continue
 		}
 
-		receiverConn, ok := clients[chatMessage.ReceiverID]
+		receiverConn, ok := clients[
+			chatMessage.ReceiverID]
 
 		if ok {
 
@@ -150,6 +200,12 @@ func ChatHandler(w http.ResponseWriter, r *http.Request) {
 			)
 
 			if err != nil {
+
+				logger.Log.Errorw(
+					"failed to send websocket message",
+					"error",
+					err,
+				)
 
 				receiverConn.Close()
 

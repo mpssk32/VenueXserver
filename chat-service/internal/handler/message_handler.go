@@ -24,7 +24,7 @@ func GetMessages(w http.ResponseWriter, r *http.Request) {
 	senderID := r.URL.Query().Get("sender_id")
 	receiverID := r.URL.Query().Get("receiver_id")
 
-	messages, err := service.GetMessages(
+	messages, err := service.MessageService.GetMessages(
 		senderID,
 		receiverID,
 	)

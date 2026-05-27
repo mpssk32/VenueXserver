@@ -37,7 +37,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = service.Register(req)
+	err = service.AuthService.Register(req)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -73,7 +73,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token, err := service.Login(req)
+	token, err := service.AuthService.Login(req)
 	if err != nil {
 		http.Error(w, "Invalid email or password", http.StatusUnauthorized)
 		return

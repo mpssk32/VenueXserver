@@ -10,31 +10,56 @@
 package main
 
 import (
+	_ "concert-service/docs"
+
 	"concert-service/internal/config"
+	"venuex/shared/logger"
 	"concert-service/internal/routes"
-	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
 	httpSwagger "github.com/swaggo/http-swagger"
-	_ "concert-service/docs"
 )
 
 func main() {
 
+	logger.Init()
+
+	logger.Log.Info(
+		"starting concert-service",
+	)
+
 	config.ConnectDB()
+
+	logger.Log.Info(
+		"PostgreSQL connected",
+	)
 
 	r := mux.NewRouter()
 
 	r.PathPrefix("/swagger/").Handler(
 		httpSwagger.WrapHandler,
 	)
-	
+
 	routes.RegisterRoutes(r)
 
-	log.Println("concert service started on :8082")
-
-	log.Fatal(
-		http.ListenAndServe(":8082", r),
+	logger.Log.Infow(
+		"concert-service started",
+		"port",
+		":8082",
 	)
+
+	err := http.ListenAndServe(
+		":8082",
+		r,
+	)
+
+	if err != nil {
+
+		logger.Log.Fatalw(
+			"failed to start concert-service",
+			"error",
+			err,
+		)
+	}
 }

@@ -6,29 +6,40 @@
 //	@securityDefinitions.apikey	BearerAuth
 //	@in							header
 //	@name						Authorization
+
 package main
 
 import (
+	_ "chat-service/docs"
+
 	"chat-service/internal/config"
 	"chat-service/internal/handler"
-	"log"
+	"venuex/shared/logger"
 	"net/http"
 
 	"github.com/gorilla/mux"
 	httpSwagger "github.com/swaggo/http-swagger"
-	_ "chat-service/docs"
 )
 
 func main() {
 
+	logger.Init()
+
+	logger.Log.Info(
+		"starting chat-service",
+	)
+
 	config.ConnectDB()
+
+	logger.Log.Info(
+		"PostgreSQL connected",
+	)
 
 	r := mux.NewRouter()
 
 	r.PathPrefix("/swagger/").Handler(
 		httpSwagger.WrapHandler,
 	)
-
 
 	// websocket chat
 	r.HandleFunc(
@@ -42,9 +53,23 @@ func main() {
 		handler.GetMessages,
 	).Methods("GET")
 
-	log.Println("чат запущен на :8081")
-
-	log.Fatal(
-		http.ListenAndServe(":8081", r),
+	logger.Log.Infow(
+		"chat-service started",
+		"port",
+		":8081",
 	)
+
+	err := http.ListenAndServe(
+		":8081",
+		r,
+	)
+
+	if err != nil {
+
+		logger.Log.Fatalw(
+			"failed to start chat-service",
+			"error",
+			err,
+		)
+	}
 }

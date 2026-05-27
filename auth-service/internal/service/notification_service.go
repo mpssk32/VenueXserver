@@ -9,6 +9,11 @@ import (
 
 func PublishNotification(message string) error {
 
+	if config.RabbitChannel == nil {
+
+		return nil
+	}
+
 	return config.RabbitChannel.PublishWithContext(
 		context.Background(),
 		"",

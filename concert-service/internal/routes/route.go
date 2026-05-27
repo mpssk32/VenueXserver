@@ -5,6 +5,7 @@ import (
 
 	"concert-service/internal/handler"
 	"concert-service/internal/middleware"
+	sharedjwt "venuex/shared/jwt"
 
 	"github.com/gorilla/mux"
 )
@@ -29,7 +30,7 @@ func RegisterRoutes(r *mux.Router) {
 	// создание площадок для владельцев площадок
 	r.Handle(
 	"/venues",
-	middleware.JWTMiddleware(
+	sharedjwt.JWTMiddleware(
 		middleware.RoleMiddleware("venue_admin")(
 			http.HandlerFunc(handler.CreateVenue),
 		),
@@ -39,7 +40,7 @@ func RegisterRoutes(r *mux.Router) {
 // создание концертов для владельцев площадок
 	r.Handle(
 	"/concerts",
-	middleware.JWTMiddleware(
+	sharedjwt.JWTMiddleware(
 		middleware.RoleMiddleware("venue_admin")(
 			http.HandlerFunc(handler.CreateConcert),
 		),
@@ -51,7 +52,7 @@ func RegisterRoutes(r *mux.Router) {
 // создание заявок на проведение концерта для артистов
 	r.Handle(
 	"/applications",
-	middleware.JWTMiddleware(
+	sharedjwt.JWTMiddleware(
 		middleware.RoleMiddleware("artist")(
 			http.HandlerFunc(handler.CreateApplication),
 		),
@@ -62,7 +63,7 @@ func RegisterRoutes(r *mux.Router) {
 // просмотр заявок на проведение концерта для владельцев площадок
 	r.Handle(
 	"/applications",
-	middleware.JWTMiddleware(
+	sharedjwt.JWTMiddleware(
 		middleware.RoleMiddleware("venue_admin")(
 			http.HandlerFunc(handler.GetVenueApplications),
 		),
@@ -74,7 +75,7 @@ func RegisterRoutes(r *mux.Router) {
 
 	r.Handle(
 	"/applications/{id}/approve",
-	middleware.JWTMiddleware(
+	sharedjwt.JWTMiddleware(
 		middleware.RoleMiddleware("venue_admin")(
 			http.HandlerFunc(handler.ApproveApplication),
 		),
@@ -83,7 +84,7 @@ func RegisterRoutes(r *mux.Router) {
 
 	r.Handle(
 	"/applications/{id}/reject",
-	middleware.JWTMiddleware(
+	sharedjwt.JWTMiddleware(
 		middleware.RoleMiddleware("venue_admin")(
 			http.HandlerFunc(handler.RejectApplication),
 		),
@@ -93,7 +94,7 @@ func RegisterRoutes(r *mux.Router) {
 	// создание событий для владельцев площадок bearer token
 	r.Handle(
 		"/events",
-		middleware.JWTMiddleware(
+		sharedjwt.JWTMiddleware(
 			middleware.RoleMiddleware("venue_admin")(
 				http.HandlerFunc(handler.CreateEvent),
 			),
@@ -110,7 +111,7 @@ func RegisterRoutes(r *mux.Router) {
 	// создание билетов bearer token 
 	r.Handle(
 		"/tickets",
-		middleware.JWTMiddleware(
+		sharedjwt.JWTMiddleware(
 			http.HandlerFunc(handler.CreateTicket),
 		),
 	).Methods("POST")
@@ -120,7 +121,7 @@ func RegisterRoutes(r *mux.Router) {
 
 	r.Handle(
 		"/my-tickets",
-		middleware.JWTMiddleware(
+		sharedjwt.JWTMiddleware(
 			http.HandlerFunc(handler.GetUserTickets),
 		),
 	).Methods("GET")
@@ -135,7 +136,7 @@ func RegisterRoutes(r *mux.Router) {
 	// удаление события  Bearer VENUE_ADMIN_TOKEN 
 	r.Handle(
 		"/events/{id}",
-		middleware.JWTMiddleware(
+		sharedjwt.JWTMiddleware(
 			middleware.RoleMiddleware("venue_admin")(
 				http.HandlerFunc(handler.DeleteEvent),
 			),
@@ -145,7 +146,7 @@ func RegisterRoutes(r *mux.Router) {
 	// обновление события Bearer VENUE_ADMIN_TOKEN 
 	r.Handle(
 		"/events/{id}",
-		middleware.JWTMiddleware(
+		sharedjwt.JWTMiddleware(
 			middleware.RoleMiddleware("venue_admin")(
 				http.HandlerFunc(handler.UpdateEvent),
 			),
@@ -163,7 +164,7 @@ func RegisterRoutes(r *mux.Router) {
 
 	r.Handle(
 		"/events",
-		middleware.JWTMiddleware(
+		sharedjwt.JWTMiddleware(
 			middleware.RoleMiddleware(
 				"venue_admin",
 			)(

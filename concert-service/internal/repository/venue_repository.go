@@ -32,3 +32,42 @@ func CreateVenue(venue models.Venue) error {
 
 	return err
 }
+
+func GetVenues() ([]models.Venue, error) {
+	query := `
+		SELECT
+			id,
+			name,
+			city,
+			description,
+			equipment,
+			capacity,
+			owner_id
+		FROM venues
+	`
+	rows, err := config.DB.Query(context.Background(), query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var venues []models.Venue
+	for rows.Next() {
+		var v models.Venue
+		err := rows.Scan(
+			&v.ID,
+			&v.Name,
+			&v.City,
+			&v.Description,
+			&v.Equipment,
+			&v.Capacity,
+			&v.OwnerID,
+		)
+		if err != nil {
+			return nil, err
+		}
+		venues = append(venues, v)
+	}
+
+	return venues, nil
+}

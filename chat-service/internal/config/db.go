@@ -1,8 +1,8 @@
 package config
 
 import (
+	"venuex/shared/logger"
 	"context"
-	"log"
 	"os"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -12,7 +12,9 @@ var DB *pgxpool.Pool
 
 func ConnectDB() {
 
-	databaseURL := os.Getenv("DATABASE_URL")
+	databaseURL := os.Getenv(
+		"DATABASE_URL",
+	)
 
 	var err error
 
@@ -22,14 +24,28 @@ func ConnectDB() {
 	)
 
 	if err != nil {
-		log.Fatal(err)
+
+		logger.Log.Fatalw(
+			"failed to create database pool",
+			"error",
+			err,
+		)
 	}
 
-	err = DB.Ping(context.Background())
+	err = DB.Ping(
+		context.Background(),
+	)
 
 	if err != nil {
-		log.Fatal(err)
+
+		logger.Log.Fatalw(
+			"failed to connect to PostgreSQL",
+			"error",
+			err,
+		)
 	}
 
-	log.Println("PostgreSQL connected")
+	logger.Log.Info(
+		"PostgreSQL connected",
+	)
 }
